@@ -41,7 +41,7 @@ RAW_DIR         = os.path.join(BASE_DIR, "TwitterEmotion_raw")
 OUTPUT_DIR      = os.path.join(BASE_DIR, "preprocessing", "twitter_emotion_preprocessing")
 PATH_DATASET_1  = os.path.join(RAW_DIR, "EmoTweetID-Human.csv")
 PATH_DATASET_2  = os.path.join(RAW_DIR, "Twitter_Emotion_Dataset.csv")
-PATH_SLANG_DICT = os.path.join(RAW_DIR, "kamus_singkatan.csv")
+PATH_SLANG_DICT = os.path.join(RAW_DIR, "kamus_singkatan.xlsx")
 
 RANDOM_SEED = 42
 TEST_SIZE   = 0.2
