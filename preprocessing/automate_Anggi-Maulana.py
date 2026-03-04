@@ -37,11 +37,11 @@ log = logging.getLogger(__name__)
 
 # ── Path (relatif dari ROOT repo) ──────────────────────────────────────────────
 BASE_DIR        = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-RAW_DIR         = os.path.join(BASE_DIR, "namadataset_raw")
+RAW_DIR         = os.path.join(BASE_DIR, "TwitterEmotion_raw")
 OUTPUT_DIR      = os.path.join(BASE_DIR, "preprocessing", "twitter_emotion_preprocessing")
 PATH_DATASET_1  = os.path.join(RAW_DIR, "EmoTweetID-Human.csv")
 PATH_DATASET_2  = os.path.join(RAW_DIR, "Twitter_Emotion_Dataset.csv")
-PATH_SLANG_DICT = os.path.join(RAW_DIR, "kamus_singkatan.csv")
+PATH_SLANG_DICT = os.path.join(RAW_DIR, "kamus_singkatan.xlsx")
 
 RANDOM_SEED = 42
 TEST_SIZE   = 0.2
@@ -211,9 +211,9 @@ def save_outputs(df, df_train, df_val, le, label_mapping, num_labels):
         json.dump(metadata, f, indent=2)
 
     log.info("Output disimpan di: %s", OUTPUT_DIR)
-    log.info("  train.csv  : %d baris", len(df_train))
-    log.info("  val.csv    : %d baris", len(df_val))
-    log.info("  full.csv   : %d baris", len(df))
+    log.info("  train.csv        : %d baris", len(df_train))
+    log.info("  val.csv          : %d baris", len(df_val))
+    log.info("  full.csv         : %d baris", len(df))
     log.info("  label_encoder.pkl")
     log.info("  metadata.json")
 
