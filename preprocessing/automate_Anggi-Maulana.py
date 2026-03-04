@@ -72,10 +72,34 @@ def load_datasets():
 
 
 def load_slang_dict():
-    """Memuat kamus slang bahasa Indonesia."""
+    """
+    Memuat kamus slang bahasa Indonesia.
+    Support format: .xlsx, .csv
+    """
     log.info("Memuat kamus slang: %s", PATH_SLANG_DICT)
-    df_slang = pd.read_csv(PATH_SLANG_DICT, sep=None, engine="python", header=None)
-    slang_dict = dict(zip(df_slang[0], df_slang[1]))
+
+    ext = os.path.splitext(PATH_SLANG_DICT)[1].lower()
+
+    if ext == ".xlsx" or ext == ".xls":
+        # Baca file Excel
+        df_slang = pd.read_excel(PATH_SLANG_DICT, header=None, engine="openpyxl")
+    else:
+        # Coba baca sebagai CSV dengan berbagai encoding
+        for encoding in ["utf-8", "latin-1", "iso-8859-1", "cp1252"]:
+            try:
+                df_slang = pd.read_csv(
+                    PATH_SLANG_DICT, sep=None, engine="python",
+                    header=None, encoding=encoding
+                )
+                log.info("Kamus slang dibaca dengan encoding: %s", encoding)
+                break
+            except (UnicodeDecodeError, Exception):
+                continue
+
+    slang_dict = dict(zip(
+        df_slang[0].astype(str).str.strip().str.lower(),
+        df_slang[1].astype(str).str.strip()
+    ))
     log.info("Kamus slang: %d entri", len(slang_dict))
     return slang_dict
 

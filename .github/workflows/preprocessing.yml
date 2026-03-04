@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     paths:
-      - "TwitterEmotion_raw/**"
+      - "namadataset_raw/**"
       - "preprocessing/automate_Anggi-Maulana.py"
       - ".github/workflows/preprocessing.yml"
   workflow_dispatch:
@@ -42,17 +42,17 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install pandas numpy scikit-learn
+          pip install pandas numpy scikit-learn openpyxl
 
       - name: Verify dataset files
         run: |
-          echo "Memeriksa file dataset di TwitterEmotion_raw/..."
+          echo "Memeriksa file dataset di namadataset_raw/..."
           python -c "
           import os, sys
           files = [
-              'TwitterEmotion_raw/EmoTweetID-Human.csv',
-              'TwitterEmotion_raw/Twitter_Emotion_Dataset.csv',
-              'TwitterEmotion_raw/kamus_singkatan.xlsx',
+              'namadataset_raw/EmoTweetID-Human.csv',
+              'namadataset_raw/Twitter_Emotion_Dataset.csv',
+              'namadataset_raw/kamus_singkatan.csv',
           ]
           all_ok = True
           for f in files:
