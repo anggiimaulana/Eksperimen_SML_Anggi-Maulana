@@ -1,20 +1,3 @@
-"""
-automate_Anggi-Maulana.py
-=========================
-Script otomatisasi preprocessing Indonesian Twitter Emotion Dataset.
-Konversi dari notebook Eksperimen_Anggi-Maulana.ipynb ke format .py.
-
-Penggunaan (dari root repo):
-    python preprocessing/automate_Anggi-Maulana.py
-
-Output (di dalam folder preprocessing/):
-    preprocessing/twitter_emotion_preprocessing/train.csv
-    preprocessing/twitter_emotion_preprocessing/val.csv
-    preprocessing/twitter_emotion_preprocessing/full.csv
-    preprocessing/twitter_emotion_preprocessing/label_encoder.pkl
-    preprocessing/twitter_emotion_preprocessing/metadata.json
-"""
-
 import json
 import logging
 import os
@@ -27,7 +10,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 
-# ── Logging ────────────────────────────────────────────────────────────────────
+# Logging 
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
@@ -35,7 +18,7 @@ logging.basicConfig(
 )
 log = logging.getLogger(__name__)
 
-# ── Path (relatif dari ROOT repo) ──────────────────────────────────────────────
+# Path
 BASE_DIR        = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RAW_DIR         = os.path.join(BASE_DIR, "TwitterEmotion_raw")
 OUTPUT_DIR      = os.path.join(BASE_DIR, "preprocessing", "twitter_emotion_preprocessing")
@@ -50,10 +33,7 @@ MAX_LENGTH  = 128
 np.random.seed(RANDOM_SEED)
 
 
-# ══════════════════════════════════════════════════════════════════════════════
 # 1. LOAD DATA
-# ══════════════════════════════════════════════════════════════════════════════
-
 def load_datasets():
     """Memuat dan menggabungkan dua dataset tweet emosi."""
     log.info("Memuat Dataset 1: %s", PATH_DATASET_1)
@@ -80,10 +60,7 @@ def load_slang_dict():
     return slang_dict
 
 
-# ══════════════════════════════════════════════════════════════════════════════
 # 2. CLEANING
-# ══════════════════════════════════════════════════════════════════════════════
-
 def remove_duplicates(df):
     """Menghapus tweet duplikat."""
     before = len(df)
@@ -100,10 +77,7 @@ def handle_missing_values(df):
     return df
 
 
-# ══════════════════════════════════════════════════════════════════════════════
 # 3. TEXT PREPROCESSING
-# ══════════════════════════════════════════════════════════════════════════════
-
 def build_preprocess_fn(slang_dict):
     """
     Membuat fungsi preprocessing teks dengan kamus slang yang sudah dimuat.
@@ -143,10 +117,7 @@ def apply_preprocessing(df, slang_dict):
     return df
 
 
-# ══════════════════════════════════════════════════════════════════════════════
 # 4. LABEL ENCODING & SPLIT
-# ══════════════════════════════════════════════════════════════════════════════
-
 def encode_labels(df):
     """Label encoding pada kolom 'label'."""
     df["label"] = df["label"].str.strip().str.lower()
@@ -183,10 +154,7 @@ def split_dataset(df):
     return df_train, df_val
 
 
-# ══════════════════════════════════════════════════════════════════════════════
 # 5. SAVE OUTPUT
-# ══════════════════════════════════════════════════════════════════════════════
-
 def save_outputs(df, df_train, df_val, le, label_mapping, num_labels):
     """Menyimpan hasil preprocessing ke OUTPUT_DIR."""
     os.makedirs(OUTPUT_DIR, exist_ok=True)
@@ -218,10 +186,7 @@ def save_outputs(df, df_train, df_val, le, label_mapping, num_labels):
     log.info("  metadata.json")
 
 
-# ══════════════════════════════════════════════════════════════════════════════
 # 6. PIPELINE UTAMA
-# ══════════════════════════════════════════════════════════════════════════════
-
 def run_pipeline():
     log.info("=" * 60)
     log.info("MEMULAI PIPELINE PREPROCESSING — Anggi Maulana")

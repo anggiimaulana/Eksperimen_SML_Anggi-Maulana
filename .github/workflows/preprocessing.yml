@@ -17,13 +17,10 @@ jobs:
     steps:
       - name: Set up job
         run: |
-          echo "======================================"
           echo "Preprocessing Pipeline — Anggi Maulana"
-          echo "======================================"
           echo "Trigger  : ${{ github.event_name }}"
           echo "Branch   : ${{ github.ref_name }}"
           echo "Commit   : ${{ github.sha }}"
-          echo "======================================"
 
       - name: Run actions/checkout@v3
         uses: actions/checkout@v3
@@ -119,11 +116,9 @@ jobs:
       - name: Complete job
         if: always()
         run: |
-          echo "======================================"
           echo "SUMMARY"
           echo "Status    : ${{ job.status }}"
           echo "Timestamp : $(date +'%Y-%m-%d %H:%M:%S UTC')"
-          echo "======================================"
           if [ -d "preprocessing/twitter_emotion_preprocessing" ]; then
             echo "Output files:"
             ls -lh preprocessing/twitter_emotion_preprocessing/
