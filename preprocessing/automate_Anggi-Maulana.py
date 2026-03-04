@@ -37,7 +37,7 @@ log = logging.getLogger(__name__)
 
 # ── Path (relatif dari ROOT repo) ──────────────────────────────────────────────
 BASE_DIR        = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-RAW_DIR         = os.path.join(BASE_DIR, "namadataset_raw")
+RAW_DIR         = os.path.join(BASE_DIR, "TwitterEmotion_raw")
 OUTPUT_DIR      = os.path.join(BASE_DIR, "preprocessing", "twitter_emotion_preprocessing")
 PATH_DATASET_1  = os.path.join(RAW_DIR, "EmoTweetID-Human.csv")
 PATH_DATASET_2  = os.path.join(RAW_DIR, "Twitter_Emotion_Dataset.csv")
