@@ -52,7 +52,7 @@ jobs:
           files = [
               'TwitterEmotion_raw/EmoTweetID-Human.csv',
               'TwitterEmotion_raw/Twitter_Emotion_Dataset.csv',
-              'TwitterEmotion_raw/kamus_singkatan.csv',
+              'TwitterEmotion_raw/kamus_singkatan.xlsx',
           ]
           all_ok = True
           for f in files:
