@@ -42,7 +42,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install pandas numpy scikit-learn openpyxl
+          pip install pandas numpy scikit-learn openpyxl openpyxl
 
       - name: Verify dataset files
         run: |

@@ -37,11 +37,11 @@ log = logging.getLogger(__name__)
 
 # ── Path (relatif dari ROOT repo) ──────────────────────────────────────────────
 BASE_DIR        = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-RAW_DIR         = os.path.join(BASE_DIR, "TwitterEmotion_raw")
+RAW_DIR         = os.path.join(BASE_DIR, "namadataset_raw")
 OUTPUT_DIR      = os.path.join(BASE_DIR, "preprocessing", "twitter_emotion_preprocessing")
 PATH_DATASET_1  = os.path.join(RAW_DIR, "EmoTweetID-Human.csv")
 PATH_DATASET_2  = os.path.join(RAW_DIR, "Twitter_Emotion_Dataset.csv")
-PATH_SLANG_DICT = os.path.join(RAW_DIR, "kamus_singkatan.xlsx")
+PATH_SLANG_DICT = os.path.join(RAW_DIR, "kamus_singkatan.csv")
 
 RANDOM_SEED = 42
 TEST_SIZE   = 0.2
@@ -72,34 +72,10 @@ def load_datasets():
 
 
 def load_slang_dict():
-    """
-    Memuat kamus slang bahasa Indonesia.
-    Support format: .xlsx, .csv
-    """
+    """Memuat kamus slang bahasa Indonesia dari file .xlsx."""
     log.info("Memuat kamus slang: %s", PATH_SLANG_DICT)
-
-    ext = os.path.splitext(PATH_SLANG_DICT)[1].lower()
-
-    if ext == ".xlsx" or ext == ".xls":
-        # Baca file Excel
-        df_slang = pd.read_excel(PATH_SLANG_DICT, header=None, engine="openpyxl")
-    else:
-        # Coba baca sebagai CSV dengan berbagai encoding
-        for encoding in ["utf-8", "latin-1", "iso-8859-1", "cp1252"]:
-            try:
-                df_slang = pd.read_csv(
-                    PATH_SLANG_DICT, sep=None, engine="python",
-                    header=None, encoding=encoding
-                )
-                log.info("Kamus slang dibaca dengan encoding: %s", encoding)
-                break
-            except (UnicodeDecodeError, Exception):
-                continue
-
-    slang_dict = dict(zip(
-        df_slang[0].astype(str).str.strip().str.lower(),
-        df_slang[1].astype(str).str.strip()
-    ))
+    df_slang = pd.read_excel(PATH_SLANG_DICT, header=None)
+    slang_dict = dict(zip(df_slang[0], df_slang[1]))
     log.info("Kamus slang: %d entri", len(slang_dict))
     return slang_dict
 
