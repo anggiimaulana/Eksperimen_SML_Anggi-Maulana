@@ -1,0 +1,153 @@
+name: Automated Preprocessing Pipeline
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'namadataset_raw/**'
+      - 'automate_NamaSiswa.py'
+      - '.github/workflows/preprocessing.yml'
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Alasan menjalankan preprocessing manual'
+        required: false
+        default: 'Manual trigger'
+
+jobs:
+  preprocessing:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      # ── 1. Checkout repository ──────────────────────────────────────────────
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      # ── 2. Setup Python ──────────────────────────────────────────────────────
+      - name: Set up Python 3.12.7
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12.7'
+          cache: 'pip'
+
+      # ── 3. Check environment ─────────────────────────────────────────────────
+      - name: Check Env
+        run: |
+          python --version
+          pip --version
+          echo "Runner OS : ${{ runner.os }}"
+          echo "Trigger   : ${{ github.event_name }}"
+
+      # ── 4. Install dependencies ───────────────────────────────────────────────
+      - name: Install Dependencies
+        run: |
+          pip install --upgrade pip
+          pip install pandas numpy scikit-learn
+
+      # ── 5. Verify dataset files exist ─────────────────────────────────────────
+      - name: Verify Dataset Files
+        run: |
+          echo "Memeriksa ketersediaan file dataset..."
+          ls -la namadataset_raw/
+          python -c "
+          import os
+          files = [
+              'namadataset_raw/EmoTweetID-Human.csv',
+              'namadataset_raw/Twitter_Emotion_Dataset.csv',
+              'namadataset_raw/kamus_singkatan.csv',
+          ]
+          for f in files:
+              if os.path.exists(f):
+                  size = os.path.getsize(f)
+                  print(f'  ✓ {f} ({size:,} bytes)')
+              else:
+                  print(f'  ✗ TIDAK DITEMUKAN: {f}')
+                  exit(1)
+          print('Semua file dataset tersedia!')
+          "
+
+      # ── 6. Run preprocessing pipeline ────────────────────────────────────────
+      - name: Run Preprocessing Pipeline
+        run: |
+          echo "Menjalankan pipeline preprocessing..."
+          python automate_NamaSiswa.py \
+            --dataset1 namadataset_raw/EmoTweetID-Human.csv \
+            --dataset2 namadataset_raw/Twitter_Emotion_Dataset.csv \
+            --slang    namadataset_raw/kamus_singkatan.csv \
+            --output   twitter_emotion_preprocessing
+
+      # ── 7. Validate output ────────────────────────────────────────────────────
+      - name: Validate Preprocessing Output
+        run: |
+          python -c "
+          import pandas as pd, json, os, pickle
+
+          output_dir = 'twitter_emotion_preprocessing'
+          required_files = [
+              'train.csv', 'val.csv', 'full.csv',
+              'label_encoder.pkl', 'metadata.json'
+          ]
+
+          print('Validasi output preprocessing:')
+          for f in required_files:
+              path = os.path.join(output_dir, f)
+              assert os.path.exists(path), f'File tidak ditemukan: {path}'
+              print(f'  ✓ {f}')
+
+          # Validasi CSV
+          train = pd.read_csv(f'{output_dir}/train.csv')
+          val   = pd.read_csv(f'{output_dir}/val.csv')
+          full  = pd.read_csv(f'{output_dir}/full.csv')
+
+          assert 'clean_tweet' in train.columns, 'Kolom clean_tweet tidak ada!'
+          assert 'label'       in train.columns, 'Kolom label tidak ada!'
+          assert 'label_id'    in train.columns, 'Kolom label_id tidak ada!'
+          assert len(train) > 0, 'Training set kosong!'
+          assert len(val)   > 0, 'Validation set kosong!'
+
+          print(f'\nStatistik dataset:')
+          print(f'  Training   : {len(train):,} baris')
+          print(f'  Validation : {len(val):,} baris')
+          print(f'  Full       : {len(full):,} baris')
+
+          with open(f'{output_dir}/metadata.json') as f:
+              meta = json.load(f)
+          print(f'\nMetadata:')
+          print(f'  Jumlah label  : {meta[\"num_labels\"]}')
+          print(f'  Kategori      : {list(meta[\"label_mapping\"].keys())}')
+
+          print('\n✅ Semua validasi berhasil!')
+          "
+
+      # ── 8. Upload preprocessed dataset ke GitHub ──────────────────────────────
+      - name: Commit and Push Preprocessed Dataset
+        run: |
+          git config --global user.name  "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add twitter_emotion_preprocessing/
+          git diff --staged --quiet && echo "Tidak ada perubahan" || (
+            git commit -m "ci: update preprocessed dataset [$(date +'%Y-%m-%d %H:%M:%S')]"
+            git push
+          )
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # ── 9. Summary ─────────────────────────────────────────────────────────────
+      - name: Preprocessing Summary
+        if: always()
+        run: |
+          echo "================================================"
+          echo "PREPROCESSING PIPELINE SUMMARY"
+          echo "================================================"
+          echo "Status     : ${{ job.status }}"
+          echo "Trigger    : ${{ github.event_name }}"
+          echo "Branch     : ${{ github.ref_name }}"
+          echo "Commit     : ${{ github.sha }}"
+          echo "Timestamp  : $(date +'%Y-%m-%d %H:%M:%S UTC')"
+          echo "================================================"
+          if [ -d "twitter_emotion_preprocessing" ]; then
+            echo "Output files:"
+            ls -lh twitter_emotion_preprocessing/
+          fi
